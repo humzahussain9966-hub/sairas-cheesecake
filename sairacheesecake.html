@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Saira's Cheesecake</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Poppins,sans-serif;background:#fff7f3;color:#333;overflow-x:hidden}
+header{display:flex;justify-content:space-between;align-items:center;padding:15px 20px;background:#fff;position:sticky;top:0;box-shadow:0 2px 10px rgba(0,0,0,.08);z-index:100}
+.logo{font-weight:600;font-size:20px;color:#d2691e}
+nav{display:flex;gap:20px}
+nav a{text-decoration:none;color:#333;font-weight:500;cursor:pointer}
+nav a:hover{color:#d2691e}
+.menu-btn{display:none;font-size:22px;cursor:pointer}
+.hero{text-align:center;padding:70px 20px;background:linear-gradient(to right,#fff,#ffe8dd)}
+.hero h1{font-size:clamp(26px,5vw,44px);margin-bottom:10px}
+.hero p{color:#666;margin-bottom:20px}
+.btn{background:#d2691e;color:#fff;padding:12px 22px;border:none;border-radius:30px;cursor:pointer;font-weight:500}
+.section{display:none;padding:40px 20px}
+.active{display:block}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:25px}
+.card{background:#fff;border-radius:20px;padding:15px;box-shadow:0 8px 20px rgba(0,0,0,.08);transition:.3s}
+.card:hover{transform:translateY(-5px)}
+.card img{width:100%;height:200px;object-fit:cover;border-radius:15px}
+.card h3{margin:10px 0 5px}
+.card p{font-size:14px;color:#666}
+.price{font-weight:600;margin:8px 0}
+.footer{background:#222;color:#fff;padding:30px;text-align:center;margin-top:40px;position:relative}
+
+/* Cart Icon - now at bottom */
+.cart-icon{
+  position:fixed;
+  bottom:20px;
+  right:20px;
+  background:#d2691e;
+  color:#fff;
+  padding:12px;
+  border-radius:50%;
+  cursor:pointer;
+  z-index:150;
+}
+
+/* Cart Panel */
+.cart-panel{
+  position:fixed;
+  top:0;
+  right:-100%;
+  width:90%;
+  height:100%;
+  background:#fff;
+  box-shadow:-2px 0 10px rgba(0,0,0,.2);
+  padding:20px;
+  transition:.3s;
+  overflow-y:auto;
+  z-index:140;
+}
+.cart-panel.active{right:0}
+.cart-item{display:flex;justify-content:space-between;border-bottom:1px solid #eee;padding:8px 0;font-size:14px}
+.badge{background:#fff;color:#d2691e;border-radius:50%;padding:2px 6px;font-size:12px;margin-left:5px}
+
+/* WhatsApp */
+.whatsapp{position:fixed;bottom:80px;left:20px;background:#25D366;color:#fff;padding:12px 18px;border-radius:30px;text-decoration:none;font-size:14px}
+
+/* About/Team/Testimonial */
+.about-box{max-width:800px;margin:auto;text-align:center;line-height:1.6}
+.testimonial{background:#fff;border-radius:15px;padding:15px;box-shadow:0 5px 15px rgba(0,0,0,.08)}
+.team{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px}
+.team div{background:#fff;padding:15px;border-radius:15px;box-shadow:0 5px 15px rgba(0,0,0,.08);text-align:center}
+
+/* Modals */
+.modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);display:none;justify-content:center;align-items:center;z-index:200}
+.modal-content{background:#fff;padding:25px;border-radius:15px;max-width:400px;width:90%;position:relative}
+.modal-content h2{margin-bottom:15px}
+.modal-content input{width:100%;padding:10px;margin-bottom:12px;border:1px solid #ccc;border-radius:8px}
+.modal-content button{width:100%}
+.close-btn{position:absolute;top:15px;right:20px;font-size:20px;font-weight:600;cursor:pointer;color:#d2691e}
+
+/* Order Table */
+#orders-table{width:100%;border-collapse:collapse;margin-top:20px}
+#orders-table th,#orders-table td{border:1px solid #ddd;padding:8px;text-align:center}
+#orders-table th{background:#f2f2f2}
+
+/* Search & Filter */
+.search-filter{display:flex;gap:10px;margin-bottom:20px;justify-content:center;flex-wrap:wrap}
+.search-filter input,.search-filter select{padding:8px;border-radius:8px;border:1px solid #ccc}
+
+/* Place Order Button in cart */
+.cart-panel button.place-order-btn{position:sticky;bottom:10px;width:100%;margin-top:10px}
+
+/* Responsive */
+@media(max-width:768px){
+  nav{display:none;flex-direction:column;background:#fff;position:absolute;top:60px;right:0;padding:15px;z-index:120}
+  nav.active{display:flex}
+  .menu-btn{display:block}
+  .search-filter{flex-direction:column;align-items:center}
+  .cart-panel{width:90%; right:-100%; top:0; height:100%;}
+  .cart-panel.active{right:0 !important;}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Saira's Cheesecake</div>
+  <div class="menu-btn" onclick="toggleMenu()">☰</div>
+  <nav id="nav">
+    <a onclick="showPage('home')">Home</a>
+    <a onclick="showPage('products')">Cakes</a>
+    <a onclick="showPage('about')">About</a>
+    <a onclick="showPage('feedback')">Feedback</a>
+    <a onclick="showPage('team')">Team</a>
+    <a onclick="showPage('orderHistory')">Orders</a>
+    <a onclick="showSignUp()">Sign Up</a>
+    <a onclick="showLogin()">Login</a>
+  </nav>
+</header>
+
+<!-- Cart -->
+<div class="cart-icon" onclick="toggleCart()">🛒<span class="badge" id="cartCount">0</span></div>
+<div class="cart-panel" id="cartPanel">
+  <h3>Your Cart</h3>
+  <div id="cartItems"></div>
+  <h4 id="total">Total: $0</h4>
+  <button class="btn place-order-btn" onclick="placeOrder()">Place Order</button>
+</div>
+
+<!-- Sign Up Modal -->
+<div class="modal" id="signupModal">
+<div class="modal-content">
+<span class="close-btn" onclick="closeModal('signupModal')">&times;</span>
+<h2>Sign Up</h2>
+<input type="text" id="signupName" placeholder="Full Name">
+<input type="email" id="signupEmail" placeholder="Email">
+<input type="password" id="signupPassword" placeholder="Password">
+<button class="btn" onclick="signUp()">Register</button>
+</div>
+</div>
+
+<!-- Login Modal -->
+<div class="modal" id="loginModal">
+<div class="modal-content">
+<span class="close-btn" onclick="closeModal('loginModal')">&times;</span>
+<h2>Login</h2>
+<input type="email" id="loginEmail" placeholder="Email">
+<input type="password" id="loginPassword" placeholder="Password">
+<button class="btn" onclick="login()">Login</button>
+</div>
+</div>
+
+<!-- Sections -->
+<section id="home" class="section active hero">
+<h1>Welcome to Saira's Cheesecake</h1>
+<p>Fresh, creamy and delicious cheesecakes made with love.</p>
+<button class="btn" onclick="showPage('products')">Explore Cakes</button>
+</section>
+
+<section id="products" class="section">
+<h2 style="text-align:center;margin-bottom:25px">Cheesecake Collection</h2>
+<div class="search-filter">
+<input type="text" id="searchInput" placeholder="Search cakes..." oninput="filterProducts()">
+<select id="filterCategory" onchange="filterProducts()">
+<option value="all">All</option>
+<option value="Chocolate Cheesecake">Chocolate Cheesecake</option>
+<option value="Strawberry Cheesecake">Strawberry Cheesecake</option>
+<option value="Blueberry Cheesecake">Blueberry Cheesecake</option>
+</select>
+</div>
+<div class="grid" id="productList"></div>
+</section>
+
+<section id="about" class="section">
+<div class="about-box">
+<h2>About Saira</h2>
+<p>Saira Khan is the CEO and creative mind behind Saira's Cheesecake.</p>
+<h3>Our Story</h3>
+<p>Started from a small home kitchen, now delivering premium cheesecakes across the city.</p>
+<h3>Our Vision</h3>
+<p>To become the most loved dessert brand delivering happiness worldwide.</p>
+</div>
+</section>
+
+<section id="feedback" class="section">
+<h2 style="text-align:center;margin-bottom:20px">What Our Customers Say</h2>
+<div class="grid">
+<div class="testimonial">"Best cheesecake ever!" ⭐⭐⭐⭐⭐</div>
+<div class="testimonial">"Amazing taste and fast delivery" ⭐⭐⭐⭐⭐</div>
+<div class="testimonial">"Highly recommended!" ⭐⭐⭐⭐⭐</div>
+</div>
+</section>
+
+<section id="team" class="section">
+<h2 style="text-align:center">Our Team</h2>
+<div class="team">
+<div><h4>Saira Khan</h4><p>CEO</p></div>
+<div><h4>Ali</h4><p>Chef</p></div>
+<div><h4>Ahmed</h4><p>Delivery Manager</p></div>
+</div>
+</section>
+
+<section id="orderHistory" class="section">
+<h2 style="text-align:center">Your Orders</h2>
+<div style="text-align:center;margin-bottom:15px">
+<input type="text" id="trackOrderId" placeholder="Enter Order ID to track">
+<button class="btn" onclick="trackOrder()">Track</button>
+</div>
+<table id="orders-table">
+<tr>
+<th>Order ID</th>
+<th>Date</th>
+<th>Status</th>
+<th>Total</th>
+</tr>
+</table>
+</section>
+
+<section id="contact" class="section">
+<div class="about-box">
+<h2>Contact</h2>
+<p>Email: info@sairascheesecake.com</p>
+<p>WhatsApp: +92XXXXXXXXXX</p>
+<p>Location: Karachi</p>
+</div>
+</section>
+
+<a class="whatsapp" href="#">Order on WhatsApp</a>
+
+<div class="footer">© 2026 Saira's Cheesecake | Fresh • Premium • Trusted</div>
+
+<script>
+// Products
+const products=[
+{name:"Chocolate Cheesecake",price:10,img:"https://images.unsplash.com/photo-1551024601-bec78aea704b",desc:"Rich chocolate cheesecake"},
+{name:"Strawberry Cheesecake",price:12,img:"https://images.unsplash.com/photo-1563729784474-d77dbb933a9e",desc:"Fresh strawberry topping"},
+{name:"Blueberry Cheesecake",price:15,img:"https://images.unsplash.com/photo-1605475127993-5c2b5a9c5e2a",desc:"Sweet blueberry glaze"}
+];
+
+let cart=[];
+let orders = [];
+let currentUser = null;
+let users = [];
+
+// Navigation & Cart
+function showPage(page){document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));document.getElementById(page).classList.add('active');window.scrollTo(0,0)}
+function toggleMenu(){document.getElementById('nav').classList.toggle('active')}
+function toggleCart(){
+  const panel = document.getElementById('cartPanel');
+  panel.classList.toggle('active');
+}
+
+// Render Products
+function renderProducts(list=products){
+const container=document.getElementById('productList'); container.innerHTML='';
+list.forEach((p,i)=>{
+container.innerHTML+=`<div class="card"><img src="${p.img}" loading="lazy"><h3>${p.name}</h3><p>${p.desc}</p><div class="price">$${p.price}</div><button class="btn" onclick="addToCart(${i})">Add to Cart</button></div>`});
+}
+renderProducts();
+
+// Cart
+function addToCart(i){
+cart.push(products[i]);
+document.getElementById('cartCount').innerText=cart.length;
+renderCart();
+}
+function renderCart(){
+let total=0;
+const div=document.getElementById('cartItems');div.innerHTML='';
+cart.forEach(item=>{total+=item.price;div.innerHTML+=`<div class="cart-item"><span>${item.name}</span><span>$${item.price}</span></div>`});
+document.getElementById('total').innerText='Total: $'+total;
+}
+
+// Search & Filter
+function filterProducts(){
+const query=document.getElementById('searchInput').value.toLowerCase();
+const cat=document.getElementById('filterCategory').value;
+const filtered=products.filter(p=>{
+return (p.name.toLowerCase().includes(query)) && (cat==='all' || p.name===cat);
+});
+renderProducts(filtered);
+}
+
+// Sign Up/Login
+function showSignUp(){document.getElementById('signupModal').style.display='flex'}
+function showLogin(){document.getElementById('loginModal').style.display='flex'}
+function closeModal(modal){document.getElementById(modal).style.display='none'}
+
+function signUp(){
+const name=document.getElementById('signupName').value;
+const email=document.getElementById('signupEmail').value;
+const pass=document.getElementById('signupPassword').value;
+if(!name || !email || !pass){alert('Please fill all fields');return;}
+if(users.find(u=>u.email===email)){alert('Email already registered');return;}
+users.push({name,email,pass});
+alert('Registered successfully!'); closeModal('signupModal');
+}
+function login(){
+const email=document.getElementById('loginEmail').value;
+const pass=document.getElementById('loginPassword').value;
+const user=users.find(u=>u.email===email && u.pass===pass);
+if(user){currentUser=user; alert(`Welcome ${user.name}`); closeModal('loginModal'); showPage('products'); renderOrders();} 
+else{alert('Invalid credentials');}
+}
+
+// Orders
+function placeOrder(){
+if(!currentUser){alert('Please login first'); return;}
+const orderId='ORD'+Math.floor(Math.random()*10000);
+const date=new Date().toLocaleDateString();
+const total=cart.reduce((a,b)=>a+b.price,0);
+orders.push({user:currentUser.email,orderId,date,status:'Processing',total,items:[...cart]});
+cart=[];renderCart();renderOrders(); alert('Order placed successfully! Order ID: '+orderId);}
+function renderOrders(){
+const table=document.getElementById('orders-table'); table.innerHTML='<tr><th>Order ID</th><th>Date</th><th>Status</th><th>Total</th></tr>';
+orders.filter(o=>o.user===currentUser?.email).forEach(o=>{
+table.innerHTML+=`<tr><td>${o.orderId}</td><td>${o.date}</td><td>${o.status}</td><td>$${o.total}</td></tr>`;
+});
+}
+function trackOrder(){
+const id=document.getElementById('trackOrderId').value.trim();
+const order=orders.find(o=>o.orderId===id && o.user===currentUser?.email);
+if(order){alert(`Order Status: ${order.status}`);} else{alert('Order not found');}
+}
+
+</script>
+
+</body>
+</html>
